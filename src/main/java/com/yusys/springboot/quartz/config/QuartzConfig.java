@@ -1,12 +1,16 @@
 package com.yusys.springboot.quartz.config;
 
 import com.yusys.springboot.quartz.job.QuartzJob;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
+
+import java.io.IOException;
 
 /**
  * Quartz配置类
@@ -20,7 +24,7 @@ public class QuartzConfig {
 	/**
 	 * 1.创建Job对象
 	 */
-	@Bean
+	@Bean(name = "job1")
 	public JobDetailFactoryBean jobDetailFactoryBean(){
 		JobDetailFactoryBean factory = new JobDetailFactoryBean();
 		// TODO 关联我们自己的Job类
@@ -98,6 +102,14 @@ public class QuartzConfig {
 		factory.setTriggers(cronTriggerFactoryBean.getObject());
 		// TODO 加入MyAdaptableJobFactory
 		factory.setJobFactory(myAdaptableJobFactory);
+		factory.setAutoStartup(false);
 		return factory;
 	}
+
+    @Bean
+    public Scheduler scheduler(CronTriggerFactoryBean cronTriggerFactoryBean, MyAdaptableJobFactory myAdaptableJobFactory) throws IOException, SchedulerException {
+        Scheduler scheduler = schedulerFactoryBean(cronTriggerFactoryBean,myAdaptableJobFactory).getScheduler();
+//        scheduler.start();// 服务启动shi
+        return scheduler;
+    }
 }
